@@ -1,0 +1,61 @@
+---
+title: "Peace Agreements Database"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(readxl)
+library(ggplot2)
+library(plotly)
+data<-read_excel("/Users/luismanuelcamacho/Desktop/pax_all_agreements_data.xlsx")
+```
+
+Column {data-width=900}
+-----------------------------------------------------------------------
+
+### Total de acuerdos por tipo y año
+
+```{r, include=TRUE}
+p<-ggplot(data, aes(x=as.numeric(data$Age), fill=data$Agtp)) +
+    geom_histogram(binwidth=.5, alpha=.5, stat="count") + 
+    scale_fill_discrete(name = "Tipo de acuerdo") +
+    scale_x_continuous(name="Año",limits=c(1989,2020)) +
+    scale_y_continuous(name="Número de acuerdos",limits=c(0,100)) +
+    theme(legend.title = element_text(size = 7),legend.text = element_text( size=6))
+
+ggplotly(p)
+```
+
+### Estados de los acuerdos por región
+
+```{r, include=TRUE}
+p<-ggplot(data, aes(x=data$Status, fill=data$Reg)) +
+    geom_histogram(binwidth=.5, alpha=.5,stat="count",position="dodge") +
+    scale_fill_discrete(name = "Región") +
+    scale_x_discrete(name="Estado del acuerdo") +
+    scale_y_continuous(name="Número de acuerdos",limits=c(0,520)) +
+    theme(axis.text.x = element_text(size=8),legend.title = element_text(size = 7), legend.text = element_text( size=6))
+
+ggplotly(p)
+```
+
+
+Column {.tabset data-width=350}
+-----------------------------------------------------------------------
+### Recuento de Estados y subestados
+
+```{r}
+
+df<-group_by(data, data$Stage,data$StageSub)
+
+df2<-summarise(df, num=n())
+
+head(df2,20)
+
+tail(df2,7)
+```
